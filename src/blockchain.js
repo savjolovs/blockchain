@@ -80,11 +80,9 @@ class Blockchain {
                     self.chain.push(block);
                     self.height = newHeight;
                     resolve(block);
-                } else {
-                    reject(errors);
                 }
             } catch {
-                reject(Error);
+                reject(error);
             }
         });
     }
@@ -208,13 +206,10 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            for (let i=0; i<self.chain.length; i++){
-                let res = await self.chain[i].validate();
-                if (i > 0){
-                    if ((self.chain[i].previousBlockHash == self.chain[i-1].hash) || (res == false)){
-                        errorLog.push(res);
-                    }
-                } else if(res == false){
+            for (let i = 0; i < self.chain.length; i++) {
+                let currentBlock = self.chain[i];
+                let res = await currentBlock.validate();
+                if ((res == false) || ((i > 0) && (currentBlock.previousBlockHash != self.chain[i - 1].hash))) {
                     errorLog.push(res);
                 }
             }
